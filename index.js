@@ -8,7 +8,7 @@ app.use(express.json());
 
 // Change these to your DB credentials
 const pool = new Pool({
-  connectionString: "postgresql://postgres.ccxyjsawkjmpoxzhcssd:6kyeeUN@.vDz29G@aws-1-ap-south-1.pooler.supabase.com:5432/postgres",
+  connectionString: process.env.DB_URL,
   ssl: { rejectUnauthorized: false }
 });
 
@@ -47,6 +47,9 @@ app.get("/api/family/children", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Family Tree API running on http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("API running on port", PORT);
+});
+
 });
