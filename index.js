@@ -3,7 +3,10 @@ const cors = require("cors");
 const { Pool } = require("pg");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET"],
+}));
 app.use(express.json());
 
 // Change these to your DB credentials
