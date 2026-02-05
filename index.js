@@ -7,6 +7,8 @@ app.use(cors({
   origin: "*",
   methods: ["GET"],
 }));
+
+console.log("CORS enabled for API");
 app.use(express.json());
 
 // Change these to your DB credentials
