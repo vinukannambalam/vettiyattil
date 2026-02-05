@@ -32,6 +32,7 @@ app.get("/api/family/roots", async (req, res) => {
 });
 
 // API 2: Get children of a person
+
 app.get("/api/family/children", async (req, res) => {
   try {
     const parentId = req.query.parent_id;
@@ -43,16 +44,15 @@ app.get("/api/family/children", async (req, res) => {
       ORDER BY full_name
     `, [parentId]);
 
-    res.json(result.rows);
+    res.json(result.rows);   // 👈 this was missing
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to load children" });
   }
 });
 
+//  IMPORTANT for Render:
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("API running on port", PORT);
-});
-
+  console.log("Family Tree API running on port", PORT);
 });
