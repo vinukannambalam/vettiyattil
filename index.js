@@ -1,3 +1,5 @@
+console.log("=== DEPLOYED BUILD v2 - CORS DEBUG ===");
+
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
@@ -5,10 +7,10 @@ const { Pool } = require("pg");
 const app = express();
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("X-Debug-Build", "v2-cors-enabled");
   next();
 });
+
 
 console.log("CORS enabled for API");
 app.use(express.json());
