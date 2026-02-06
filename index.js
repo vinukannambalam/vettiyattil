@@ -69,6 +69,7 @@ app.get("/api/family/family", async (req, res) => {
         fm.photo_url,
         fm.spouse_id,
         sp.full_name AS spouse_name,
+		sp.photo_url AS spouse_photo_url,
         fm.order_id
       FROM family_members fm
       LEFT JOIN family_members sp ON sp.id = fm.spouse_id
