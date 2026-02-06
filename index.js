@@ -46,7 +46,7 @@ app.get("/api/family/children", async (req, res) => {
       SELECT id, full_name, photo_url
       FROM family_members
       WHERE father_id = $1 OR mother_id = $1
-      ORDER BY full_name
+      ORDER BY order_id
     `, [parentId]);
 
     res.json(result.rows);   // 👈 this was missing
