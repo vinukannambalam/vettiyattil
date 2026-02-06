@@ -27,7 +27,7 @@ app.get("/api/family/roots", async (req, res) => {
     const result = await pool.query(`
       SELECT id, full_name, photo_url, spouse_id, order_id
       FROM family_members
-      WHERE father_id IS NULL AND mother_id IS NULL
+      WHERE is_root = TRUE
       ORDER BY order_id
     `);
     res.json(result.rows);
