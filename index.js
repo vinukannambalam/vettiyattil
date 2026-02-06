@@ -1,4 +1,4 @@
-console.log("=== DEPLOYED BUILD v4 - TREE FLOW + ORDER_ID + CORS ===");
+console.log("=== DEPLOYED BUILD v5 - TREE FLOW + ORDER_ID + CORS + SEARCH ===");
 
 const express = require("express");
 const cors = require("cors");
@@ -21,7 +21,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// 1️⃣ Roots: Oldest known ancestors (both parents NULL)
+// 1️⃣ Roots: Oldest known ancestors
 app.get("/api/family/roots", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -37,7 +37,7 @@ app.get("/api/family/roots", async (req, res) => {
   }
 });
 
-// 2️⃣ Children of a selected person
+// 2️⃣ Children of a selected person (exclude spouse just in case)
 app.get("/api/family/children", async (req, res) => {
   try {
     const parentId = req.query.parent_id;
@@ -45,7 +45,8 @@ app.get("/api/family/children", async (req, res) => {
     const result = await pool.query(`
       SELECT id, full_name, photo_url, spouse_id, order_id
       FROM family_members
-      WHERE father_id = $1 OR mother_id = $1
+      WHERE (father_id = $1 OR mother_id = $1)
+        AND id <> (SELECT spouse_id FROM family_members WHERE id = $1)
       ORDER BY order_id
     `, [parentId]);
 
@@ -56,7 +57,7 @@ app.get("/api/family/children", async (req, res) => {
   }
 });
 
-// 3️⃣ Family view: person + spouse + children
+// 3️⃣ Family view: person + spouse + children (exclude spouse from children)
 app.get("/api/family/family", async (req, res) => {
   try {
     const personId = req.query.person_id;
@@ -77,7 +78,8 @@ app.get("/api/family/family", async (req, res) => {
     const childrenQ = `
       SELECT id, full_name, photo_url, spouse_id, order_id
       FROM family_members
-      WHERE father_id = $1 OR mother_id = $1
+      WHERE (father_id = $1 OR mother_id = $1)
+        AND id <> (SELECT spouse_id FROM family_members WHERE id = $1)
       ORDER BY order_id
     `;
 
@@ -91,6 +93,30 @@ app.get("/api/family/family", async (req, res) => {
   } catch (err) {
     console.error("FAMILY ERROR:", err);
     res.status(500).json({ error: "Failed to load family" });
+  }
+});
+
+// 🔍 4️⃣ Search by name (case-insensitive, partial)
+app.get("/api/family/search", async (req, res) => {
+  try {
+    const q = (req.query.q || "").trim();
+
+    if (!q) {
+      return res.json([]);
+    }
+
+    const result = await pool.query(`
+      SELECT id, full_name, photo_url, spouse_id, order_id
+      FROM family_members
+      WHERE full_name ILIKE '%' || $1 || '%'
+      ORDER BY order_id, full_name
+      LIMIT 50
+    `, [q]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("SEARCH ERROR:", err);
+    res.status(500).json({ error: "Search failed" });
   }
 });
 
